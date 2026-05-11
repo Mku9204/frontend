@@ -34,30 +34,56 @@ interface SidebarProps {
   children: React.ReactNode;
 }
 
+const drawerPaperSx = {
+  width: DRAWER_WIDTH,
+  boxSizing: 'border-box',
+  background: 'rgba(30, 41, 59, 0.6)',
+  backdropFilter: 'blur(20px)',
+  borderRight: '1px solid rgba(255, 255, 255, 0.05)',
+};
+
 const Sidebar = ({ children }: SidebarProps) => {
   const theme = useTheme();
+  // noSsr: true means the server always gets `false`; the client gets the real value.
   const isMobileQuery = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
-  const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
+  // After the first paint we know the real viewport size.
   useEffect(() => {
     setMounted(true);
-    setIsMobile(isMobileQuery);
-  }, [isMobileQuery]);
+  }, []);
+
+  // Before mount: always treat as desktop so server HTML matches initial client HTML.
+  const isMobile = mounted ? isMobileQuery : false;
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar sx={{ my: 2, display: 'flex', gap: 1.5, alignItems: 'center' }}>
-        <Box sx={{ 
-          background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)', 
-          borderRadius: 2, p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' 
-        }}>
+        <Box
+          sx={{
+            background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)',
+            borderRadius: 2,
+            p: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <AutoGraphIcon sx={{ color: '#fff' }} />
         </Box>
-        <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 800, background: 'linear-gradient(to right, #F8FAFC, #94A3B8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontFamily: 'Outfit',
+            fontWeight: 800,
+            background: 'linear-gradient(to right, #F8FAFC, #94A3B8)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
           Analytics Pro
         </Typography>
       </Toolbar>
@@ -80,14 +106,24 @@ const Sidebar = ({ children }: SidebarProps) => {
                   bgcolor: selected ? 'rgba(124, 58, 237, 0.15)' : 'transparent',
                   color: selected ? '#A78BFA' : '#94A3B8',
                   '&:hover': {
-                    bgcolor: selected ? 'rgba(124, 58, 237, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                    bgcolor: selected
+                      ? 'rgba(124, 58, 237, 0.2)'
+                      : 'rgba(255, 255, 255, 0.05)',
                     color: '#F8FAFC',
                     transform: 'translateX(4px)',
                   },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>{icon}</ListItemIcon>
-                <ListItemText primary={label} sx={{ '& .MuiListItemText-primary': { fontWeight: selected ? 700 : 500, fontFamily: 'Outfit' } }} />
+                <ListItemText
+                  primary={label}
+                  sx={{
+                    '& .MuiListItemText-primary': {
+                      fontWeight: selected ? 700 : 500,
+                      fontFamily: 'Outfit',
+                    },
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           );
@@ -98,13 +134,18 @@ const Sidebar = ({ children }: SidebarProps) => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {isMobile && mounted && (
-        <AppBar position="fixed" elevation={0} sx={{ 
-          zIndex: theme.zIndex.drawer + 1, 
-          background: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
+      {/* Mobile top AppBar — only rendered after mount to avoid SSR mismatch */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          elevation={0}
+          sx={{
+            zIndex: theme.zIndex.drawer + 1,
+            background: 'rgba(15, 23, 42, 0.8)',
+            backdropFilter: 'blur(12px)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          }}
+        >
           <Toolbar>
             <IconButton color="inherit" edge="start" onClick={() => setOpen(true)} sx={{ mr: 2 }}>
               <MenuIcon />
@@ -116,20 +157,21 @@ const Sidebar = ({ children }: SidebarProps) => {
         </AppBar>
       )}
 
+      {/*
+       * Drawer strategy:
+       *   SSR / pre-mount  → permanent (matches what the server sends)
+       *   post-mount desktop → permanent
+       *   post-mount mobile  → temporary (slide-in)
+       * This prevents the variant from changing on the first hydration pass.
+       */}
       <Drawer
-        variant={mounted && isMobile ? 'temporary' : 'permanent'}
-        open={mounted && isMobile ? open : true}
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={isMobile ? open : true}
         onClose={() => setOpen(false)}
         sx={{
-          width: DRAWER_WIDTH,
+          width: isMobile ? 0 : DRAWER_WIDTH,
           flexShrink: 0,
-          '& .MuiDrawer-paper': { 
-            width: DRAWER_WIDTH, 
-            boxSizing: 'border-box',
-            background: 'rgba(30, 41, 59, 0.6)',
-            backdropFilter: 'blur(20px)',
-            borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-          },
+          '& .MuiDrawer-paper': drawerPaperSx,
         }}
       >
         {drawerContent}
@@ -141,7 +183,7 @@ const Sidebar = ({ children }: SidebarProps) => {
           flexGrow: 1,
           bgcolor: 'transparent',
           p: { xs: 2, md: 4 },
-          mt: mounted && isMobile ? '64px' : 0,
+          mt: isMobile ? '64px' : 0,
           minHeight: '100vh',
           maxWidth: '100vw',
         }}

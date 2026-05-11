@@ -1,25 +1,22 @@
 'use client';
 
-import { CacheProvider, EmotionCache } from '@emotion/react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import createEmotionCache from '../theme/createEmotionCache';
 import theme from '../theme/theme';
-
-const clientSideEmotionCache = createEmotionCache();
 
 interface ProvidersProps {
   readonly children: React.ReactNode;
-  readonly cache?: EmotionCache;
 }
 
-function Providers({ children, cache = clientSideEmotionCache }: ProvidersProps) {
+/**
+ * Client-side providers: MUI ThemeProvider + CssBaseline.
+ * The Emotion cache/registry is handled by MuiRegistry in layout.tsx.
+ */
+function Providers({ children }: ProvidersProps) {
   return (
-    <CacheProvider value={cache}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
-    </CacheProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
   );
 }
 
