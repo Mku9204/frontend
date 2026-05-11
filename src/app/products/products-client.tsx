@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography, Chip, Fade } from '@mui/material';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import ProductTable from '../../components/products/ProductTable';
 import ProductFilters from '../../components/products/ProductFilters';
 import FileImport from '../../components/products/FileImport';
@@ -105,45 +107,118 @@ export function ProductsClient() {
   }
 
   return (
-    <Box>
-      <Typography variant="h4" sx={{ mb: 4, fontFamily: 'Outfit', fontWeight: 800, background: 'linear-gradient(to right, #A78BFA, #F472B6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', display: 'inline-block' }}>
-        🗂 Product Catalogue
-      </Typography>
-
-      {error && <ErrorAlert message={error} />}
-
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 9 }}>
-          <Box sx={{mb:2}}>
-            <ProductFilters
-              categories={categories}
-              filters={filters}
-              onFilterChange={updateFilter}
-              onReset={() => router.push('/products')}
-            />
+    <Fade in timeout={600}>
+      <Box>
+        {/* Page Header */}
+        <Box sx={{ mb: 4 }}>
+          {/* Breadcrumb */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <StorefrontIcon sx={{ fontSize: 14, color: '#475569' }} />
+            <Typography sx={{ fontSize: '0.75rem', color: '#475569', fontWeight: 500 }}>
+              Catalogue
+            </Typography>
+            <Typography sx={{ fontSize: '0.75rem', color: '#334155' }}>/</Typography>
+            <Typography sx={{ fontSize: '0.75rem', color: '#7C3AED', fontWeight: 600 }}>
+              Products
+            </Typography>
           </Box>
-          <ProductTable
-            items={products}
-            loading={loading}
-            pagination={pagination}
-            onPageChange={changePage}
-            onRowsPerPageChange={changePageSize}
-          />
-        </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }}>
-          <FileImport
-            onUploadStart={() => setImportLoading(true)}
-            onUploadError={(message) => {
-              setImportLoading(false);
-              setImportError(message);
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 2,
             }}
-            onUploadSuccess={handleImportSuccess}
-            loading={importLoading}
-            error={importError}
-          />
+          >
+            <Box>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
+                  fontWeight: 800,
+                  fontSize: { xs: '1.5rem', md: '1.875rem' },
+                  background: 'linear-gradient(135deg, #F1F5F9 0%, #94A3B8 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  mb: 0.5,
+                }}
+              >
+                Product Catalogue
+              </Typography>
+              <Typography sx={{ color: '#475569', fontSize: '0.875rem', fontWeight: 400 }}>
+                Browse, filter, and manage your product inventory
+              </Typography>
+            </Box>
+
+            {pagination.total > 0 && (
+              <Chip
+                icon={<FilterListIcon sx={{ fontSize: '14px !important' }} />}
+                label={`${pagination.total.toLocaleString()} total`}
+                size="small"
+                sx={{
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.25)',
+                  color: '#93C5FD',
+                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  '& .MuiChip-icon': { color: '#93C5FD' },
+                }}
+              />
+            )}
+          </Box>
+        </Box>
+
+        {error && <ErrorAlert message={error} />}
+
+        <Grid container spacing={3}>
+          {/* Main Content Area */}
+          <Grid size={{ xs: 12, md: 9 }}>
+            {/* Filters */}
+            <Box
+              sx={{
+                p: 2.5,
+                borderRadius: '16px',
+                background: 'rgba(13, 23, 40, 0.75)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                mb: 2.5,
+              }}
+            >
+              <ProductFilters
+                categories={categories}
+                filters={filters}
+                onFilterChange={updateFilter}
+                onReset={() => router.push('/products')}
+              />
+            </Box>
+
+            {/* Product Table */}
+            <ProductTable
+              items={products}
+              loading={loading}
+              pagination={pagination}
+              onPageChange={changePage}
+              onRowsPerPageChange={changePageSize}
+            />
+          </Grid>
+
+          {/* Sidebar: File Import */}
+          <Grid size={{ xs: 12, md: 3 }}>
+            <FileImport
+              onUploadStart={() => setImportLoading(true)}
+              onUploadError={(message) => {
+                setImportLoading(false);
+                setImportError(message);
+              }}
+              onUploadSuccess={handleImportSuccess}
+              loading={importLoading}
+              error={importError}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </Fade>
   );
 }

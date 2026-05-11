@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import {
-  AppBar,
   Box,
   Drawer,
   IconButton,
@@ -11,159 +10,342 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
+  Avatar,
+  Chip,
   Divider,
+  AppBar,
+  Toolbar,
+  Badge,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import MenuIcon from '@mui/icons-material/Menu';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import CloseIcon from '@mui/icons-material/Close';
 import { usePathname, useRouter } from 'next/navigation';
 
-const DRAWER_WIDTH = 260;
+const DRAWER_WIDTH = 268;
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { label: 'Products', icon: <TableRowsIcon />, path: '/products' },
+  {
+    label: 'Dashboard',
+    icon: <DashboardIcon fontSize="small" />,
+    path: '/',
+    badge: null,
+  },
+  {
+    label: 'Products',
+    icon: <TableRowsIcon fontSize="small" />,
+    path: '/products',
+    badge: null,
+  },
 ];
 
 interface SidebarProps {
   children: React.ReactNode;
 }
 
-const drawerPaperSx = {
-  width: DRAWER_WIDTH,
-  boxSizing: 'border-box',
-  background: 'rgba(30, 41, 59, 0.6)',
-  backdropFilter: 'blur(20px)',
-  borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-};
-
 const Sidebar = ({ children }: SidebarProps) => {
   const theme = useTheme();
-  // noSsr: true means the server always gets `false`; the client gets the real value.
   const isMobileQuery = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  // After the first paint we know the real viewport size.
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Before mount: always treat as desktop so server HTML matches initial client HTML.
   const isMobile = mounted ? isMobileQuery : false;
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar sx={{ my: 2, display: 'flex', gap: 1.5, alignItems: 'center' }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Logo */}
+      <Box
+        sx={{
+          px: 3,
+          py: 3.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+        }}
+      >
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)',
-            borderRadius: 2,
-            p: 1,
+            width: 38,
+            height: 38,
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 50%, #3B82F6 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: '0 4px 15px rgba(124, 58, 237, 0.5)',
+            flexShrink: 0,
           }}
         >
-          <AutoGraphIcon sx={{ color: '#fff' }} />
+          <ShowChartIcon sx={{ color: '#fff', fontSize: 20 }} />
         </Box>
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: 'Outfit',
-            fontWeight: 800,
-            background: 'linear-gradient(to right, #F8FAFC, #94A3B8)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Analytics Pro
-        </Typography>
-      </Toolbar>
-      <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} />
-      <List sx={{ px: 2, mt: 2 }}>
-        {NAV_ITEMS.map(({ label, icon, path }) => {
+        <Box>
+          <Typography
+            sx={{
+              fontFamily: '"Plus Jakarta Sans", sans-serif',
+              fontWeight: 800,
+              fontSize: '1rem',
+              background: 'linear-gradient(135deg, #F1F5F9, #94A3B8)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              lineHeight: 1.2,
+            }}
+          >
+            Analytics Pro
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{ color: '#475569', fontSize: '0.7rem', fontWeight: 500 }}
+          >
+            Product Intelligence
+          </Typography>
+        </Box>
+      </Box>
+
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', mx: 2 }} />
+
+      {/* Nav Label */}
+      <Typography
+        variant="overline"
+        sx={{
+          color: '#334155',
+          px: 3,
+          pt: 3,
+          pb: 1,
+          fontSize: '0.65rem',
+          letterSpacing: '0.15em',
+          fontWeight: 700,
+        }}
+      >
+        Navigation
+      </Typography>
+
+      {/* Nav Items */}
+      <List sx={{ px: 1.5, flex: 1 }}>
+        {NAV_ITEMS.map(({ label, icon, path, badge }) => {
           const selected = pathname === path;
           return (
-            <ListItem key={path} disablePadding sx={{ mb: 1 }}>
+            <ListItem key={path} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 selected={selected}
+                id={`nav-${label.toLowerCase()}`}
                 onClick={() => {
                   router.push(path);
                   setOpen(false);
                 }}
                 sx={{
-                  borderRadius: 3,
-                  py: 1.2,
-                  transition: 'all 0.2s',
-                  bgcolor: selected ? 'rgba(124, 58, 237, 0.15)' : 'transparent',
-                  color: selected ? '#A78BFA' : '#94A3B8',
-                  '&:hover': {
-                    bgcolor: selected
-                      ? 'rgba(124, 58, 237, 0.2)'
-                      : 'rgba(255, 255, 255, 0.05)',
-                    color: '#F8FAFC',
-                    transform: 'translateX(4px)',
-                  },
+                  borderRadius: '10px',
+                  py: 1.25,
+                  px: 1.5,
+                  gap: 0.5,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  ...(selected
+                    ? {
+                      background:
+                        'linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(79, 70, 229, 0.15) 100%)',
+                      color: '#C4B5FD',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: '20%',
+                        bottom: '20%',
+                        width: 3,
+                        borderRadius: '0 3px 3px 0',
+                        background: 'linear-gradient(180deg, #7C3AED, #4F46E5)',
+                        boxShadow: '0 0 8px rgba(124, 58, 237, 0.6)',
+                      },
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), transparent)',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(124, 58, 237, 0.2)',
+                      },
+                    }
+                    : {
+                      color: '#64748B',
+                      '&:hover': {
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        color: '#CBD5E1',
+                        transform: 'translateX(2px)',
+                      },
+                    }),
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>{icon}</ListItemIcon>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 36,
+                    color: 'inherit',
+                    opacity: selected ? 1 : 0.7,
+                  }}
+                >
+                  {icon}
+                </ListItemIcon>
                 <ListItemText
                   primary={label}
                   sx={{
                     '& .MuiListItemText-primary': {
-                      fontWeight: selected ? 700 : 500,
-                      fontFamily: 'Outfit',
+                      fontWeight: selected ? 600 : 500,
+                      fontFamily: '"Plus Jakarta Sans", sans-serif',
+                      fontSize: '0.875rem',
+                      color: 'inherit',
                     },
                   }}
                 />
+                {badge && (
+                  <Chip
+                    label={badge}
+                    size="small"
+                    sx={{
+                      height: 18,
+                      fontSize: '0.65rem',
+                      background: 'rgba(124, 58, 237, 0.2)',
+                      color: '#A78BFA',
+                      border: '1px solid rgba(124, 58, 237, 0.3)',
+                      '& .MuiChip-label': { px: 0.75 },
+                    }}
+                  />
+                )}
               </ListItemButton>
             </ListItem>
           );
         })}
       </List>
+
+      {/* Bottom user info */}
+      <Box sx={{ p: 2 }}>
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', mb: 2 }} />
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            p: 1.5,
+            borderRadius: '12px',
+            background: 'rgba(15, 25, 50, 0.5)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 34,
+              height: 34,
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)',
+              boxShadow: '0 2px 8px rgba(124, 58, 237, 0.3)',
+            }}
+          >
+            A
+          </Avatar>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                fontSize: '0.8125rem',
+                color: '#CBD5E1',
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Admin User
+            </Typography>
+            <Typography
+              sx={{ fontSize: '0.7rem', color: '#475569', whiteSpace: 'nowrap' }}
+            >
+              admin@analytics.pro
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Mobile top AppBar — only rendered after mount to avoid SSR mismatch */}
+      {/* Mobile AppBar */}
       {isMobile && (
         <AppBar
           position="fixed"
           elevation={0}
           sx={{
             zIndex: theme.zIndex.drawer + 1,
-            background: 'rgba(15, 23, 42, 0.8)',
-            backdropFilter: 'blur(12px)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+            background: 'rgba(8, 12, 20, 0.85)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
           }}
         >
-          <Toolbar>
-            <IconButton color="inherit" edge="start" onClick={() => setOpen(true)} sx={{ mr: 2 }}>
+          <Toolbar sx={{ gap: 2 }}>
+            <IconButton
+              id="mobile-menu-toggle"
+              color="inherit"
+              edge="start"
+              onClick={() => setOpen(true)}
+              sx={{ color: '#94A3B8' }}
+            >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: 'Outfit' }}>
-              Analytics Pro
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, #7C3AED, #3B82F6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ShowChartIcon sx={{ color: '#fff', fontSize: 16 }} />
+              </Box>
+              <Typography
+                sx={{
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
+                  fontWeight: 800,
+                  fontSize: '0.9375rem',
+                  background: 'linear-gradient(135deg, #F1F5F9, #94A3B8)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Analytics Pro
+              </Typography>
+            </Box>
+            <Box sx={{ flex: 1 }} />
+            <IconButton id="notifications-btn" sx={{ color: '#64748B' }}>
+              <Badge badgeContent={3} color="error">
+                <NotificationsNoneIcon />
+              </Badge>
+            </IconButton>
           </Toolbar>
         </AppBar>
       )}
 
-      {/*
-       * Drawer strategy:
-       *   SSR / pre-mount  → permanent (matches what the server sends)
-       *   post-mount desktop → permanent
-       *   post-mount mobile  → temporary (slide-in)
-       * This prevents the variant from changing on the first hydration pass.
-       */}
+      {/* Sidebar Drawer */}
       <Drawer
         variant={isMobile ? 'temporary' : 'permanent'}
         open={isMobile ? open : true}
@@ -171,23 +353,84 @@ const Sidebar = ({ children }: SidebarProps) => {
         sx={{
           width: isMobile ? 0 : DRAWER_WIDTH,
           flexShrink: 0,
-          '& .MuiDrawer-paper': drawerPaperSx,
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            background: 'rgba(8, 14, 26, 0.95)',
+            backdropFilter: 'blur(30px)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.05)',
+            overflowX: 'hidden',
+          },
         }}
       >
+        {isMobile && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+            <IconButton onClick={() => setOpen(false)} sx={{ color: '#64748B' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        )}
         {drawerContent}
       </Drawer>
 
+      {/* Main Content */}
       <Box
         component="main"
+        id="main-content"
         sx={{
           flexGrow: 1,
-          bgcolor: 'transparent',
-          p: { xs: 2, md: 4 },
+          p: { xs: 2, sm: 3, md: 4 },
           mt: isMobile ? '64px' : 0,
           minHeight: '100vh',
-          maxWidth: '100vw',
+          maxWidth: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
+        {!isMobile && (
+          /* Top Header Bar */
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              mb: 4,
+              gap: 1,
+            }}
+          >
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                ml: 1,
+                pl: 2,
+                borderLeft: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 34,
+                  height: 34,
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)',
+                  boxShadow: '0 2px 8px rgba(124, 58, 237, 0.3)',
+                }}
+              >
+                A
+              </Avatar>
+              <Box>
+                <Typography sx={{ fontWeight: 600, fontSize: '0.8125rem', color: '#CBD5E1', fontFamily: '"Plus Jakarta Sans", sans-serif', lineHeight: 1.2 }}>
+                  Admin User
+                </Typography>
+                <Typography sx={{ fontSize: '0.7rem', color: '#475569', lineHeight: 1.2 }}>Super Admin</Typography>
+              </Box>
+            </Box>
+          </Box>
+        )}
         {children}
       </Box>
     </Box>

@@ -5,8 +5,8 @@ import Providers from './providers';
 import Sidebar from '../components/layout/Sidebar';
 
 export const metadata: Metadata = {
-  title: 'Product Analytics',
-  description: 'Analytics dashboard for product reviews and ratings',
+  title: 'Analytics Pro — Product Intelligence',
+  description: 'Premium product analytics dashboard for reviews, ratings, and category insights',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
