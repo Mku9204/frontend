@@ -4,7 +4,7 @@ import { formatCurrency, formatNumber, formatPct, truncate, shortCategory } from
 interface ProductTableProps {
   items?: any[];
   loading?: boolean;
-  pagination: {
+  pagination?: {
     total: number;
     page: number;
     limit: number;
@@ -36,7 +36,14 @@ const SkeletonRows = ({ count }: { count: number }) =>
     </TableRow>
   ));
 
-const ProductTable = ({ items = [], loading = false, pagination, onPageChange, onRowsPerPageChange }: ProductTableProps) => {
+const DEFAULT_PAGINATION = {
+  total: 0,
+  page: 1,
+  limit: 20,
+  totalPages: 0,
+};
+
+const ProductTable = ({ items = [], loading = false, pagination = DEFAULT_PAGINATION, onPageChange, onRowsPerPageChange }: ProductTableProps) => {
 
   return (
     <Card sx={{ borderRadius: 4, overflow: 'hidden' }}>
