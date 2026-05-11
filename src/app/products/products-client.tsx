@@ -124,6 +124,7 @@ export function ProductsClient() {
           </Box>
           <ProductTable
             items={products}
+            loading={loading}
             pagination={pagination}
             onPageChange={changePage}
             onRowsPerPageChange={changePageSize}

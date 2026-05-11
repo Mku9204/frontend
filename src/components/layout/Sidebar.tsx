@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AppBar,
   Box,
@@ -36,10 +36,17 @@ interface SidebarProps {
 
 const Sidebar = ({ children }: SidebarProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
+  const isMobileQuery = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+    setIsMobile(isMobileQuery);
+  }, [isMobileQuery]);
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -91,7 +98,7 @@ const Sidebar = ({ children }: SidebarProps) => {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {isMobile && (
+      {isMobile && mounted && (
         <AppBar position="fixed" elevation={0} sx={{ 
           zIndex: theme.zIndex.drawer + 1, 
           background: 'rgba(15, 23, 42, 0.8)',
@@ -110,8 +117,8 @@ const Sidebar = ({ children }: SidebarProps) => {
       )}
 
       <Drawer
-        variant={isMobile ? 'temporary' : 'permanent'}
-        open={isMobile ? open : true}
+        variant={mounted && isMobile ? 'temporary' : 'permanent'}
+        open={mounted && isMobile ? open : true}
         onClose={() => setOpen(false)}
         sx={{
           width: DRAWER_WIDTH,
@@ -134,7 +141,7 @@ const Sidebar = ({ children }: SidebarProps) => {
           flexGrow: 1,
           bgcolor: 'transparent',
           p: { xs: 2, md: 4 },
-          mt: isMobile ? '64px' : 0,
+          mt: mounted && isMobile ? '64px' : 0,
           minHeight: '100vh',
           maxWidth: '100vw',
         }}

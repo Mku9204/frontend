@@ -2,7 +2,8 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Table
 import { formatCurrency, formatNumber, formatPct, truncate, shortCategory } from '../../utils/formatters';
 
 interface ProductTableProps {
-  items: any[];
+  items?: any[];
+  loading?: boolean;
   pagination: {
     total: number;
     page: number;
@@ -35,8 +36,7 @@ const SkeletonRows = ({ count }: { count: number }) =>
     </TableRow>
   ));
 
-const ProductTable = ({ items, pagination, onPageChange, onRowsPerPageChange }: ProductTableProps) => {
-  const loading = false;
+const ProductTable = ({ items = [], loading = false, pagination, onPageChange, onRowsPerPageChange }: ProductTableProps) => {
 
   return (
     <Card sx={{ borderRadius: 4, overflow: 'hidden' }}>
