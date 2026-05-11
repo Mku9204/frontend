@@ -36,7 +36,7 @@ interface SidebarProps {
 
 const Sidebar = ({ children }: SidebarProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'), { noSsr: true });
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
