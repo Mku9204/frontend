@@ -57,8 +57,8 @@ export function ProductsClient() {
           productsApi.getCategories(),
         ]);
 
-        setProducts(productsRes.data.data);
-        setPagination(productsRes.data.pagination);
+        setProducts(productsRes.data);
+        setPagination(productsRes.pagination);
         setCategories(categoriesRes.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load products');
